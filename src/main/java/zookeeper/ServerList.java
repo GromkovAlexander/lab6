@@ -1,4 +1,4 @@
 package zookeeper;
 
-public class ServerListr {
+public class ServerList {
 }
