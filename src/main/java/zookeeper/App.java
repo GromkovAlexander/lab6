@@ -68,6 +68,11 @@ public class App extends AllDirectives {
                         parameter("count", notParsedCount -> {
                             int count = Integer.parseInt(notParsedCount);
                             if (count != 0) {
+                                Future<Object> randomPort = Patterns.ask(
+                                        storageActor,
+                                        new GetRandomServer(count),
+                                        TIME_OUT_MILLS
+                                );
                                 
                             } else {
 
