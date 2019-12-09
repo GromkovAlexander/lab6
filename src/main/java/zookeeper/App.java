@@ -28,15 +28,14 @@ public class App extends AllDirectives {
     private static Http http;
 
     private final static String ROUTES = "routes";
-    private final static String LOCALHOST = "localhost";
-    private final static int LOCALHOST_PORT = 8080;
-    private final static String SERVER_ONLINE_MESSAGE = "Server online at http://localhost:" + LOCALHOST_PORT + "/\nPress RETURN to stop...";
-    private final static String POST_MESSAGE = "Message posted";
+    private final static String LOCALHOST = "127.0.0.1";
 
-    private final static String PACKAGE_ID = "packageId";
     private final static int TIME_OUT_MILLS = 10000;
 
     public static void main(String[] args)  {
+
+        int port = Integer.parseInt(args[0]);
+
         ActorSystem system = ActorSystem.create(ROUTES);
         ActorRef storageActor = system.actorOf(Props.create(StorageActor.class));
 
@@ -48,11 +47,12 @@ public class App extends AllDirectives {
         final Flow<HttpRequest, HttpResponse, NotUsed> routeFlow = testerJS.route(storageActor).flow(system, materializer);
         final CompletionStage<ServerBinding> binding = http.bindAndHandle(
                 routeFlow,
-                ConnectHttp.toHost(LOCALHOST, LOCALHOST_PORT),
+                ConnectHttp.toHost(LOCALHOST, port),
                 materializer
         );
 
-        System.out.println(SERVER_ONLINE_MESSAGE);
+        System.out.println("Server online at http://" + LOCALHOST + ":" + port);
+
         try {
             System.in.read();
         } catch (IOException e) {
@@ -109,7 +109,6 @@ public class App extends AllDirectives {
                                         e.printStackTrace();
                                         return complete("Can't connect to url");
                                     }
-
                                 }
                             }
                         )
