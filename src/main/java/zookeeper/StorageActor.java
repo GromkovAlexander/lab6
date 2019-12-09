@@ -19,6 +19,13 @@ public class StorageActor extends AbstractActor {
                         }
                 )
                 .match(
+                        GetRandomServer.class, msg -> {
+                            int serverPort = (int) (Math.random() * (serversList.size() - 1));
+                            while (serverPort == msg.getServer()) {
+                                serverPort = (int) (Math.random() * (serversList.size() - 1));
+                            }
+                            getSender().tell();
+                        }
 
                 )
                 .build();

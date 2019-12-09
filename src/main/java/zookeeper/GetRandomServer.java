@@ -8,5 +8,7 @@ public class GetRandomServer {
         this.server = server;
     }
 
-
+    public Integer getServer() {
+        return server;
+    }
 }
