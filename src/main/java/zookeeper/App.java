@@ -20,6 +20,7 @@ import scala.concurrent.Future;
 
 import java.io.IOException;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 
 public class App extends AllDirectives {
 
@@ -64,8 +65,13 @@ public class App extends AllDirectives {
     }
 
 
-    CompletionStage<HttpResponse> fetchToServer(String url) {
-        return http.singleRequest();
+    CompletionStage<HttpResponse> fetchToServer(String url, int port, int count) {
+        String req = "http://localhost:" + port + "/?url=" + url + "&count=" + count;
+        try {
+            return http.singleRequest(HttpRequest.create(req));
+        } catch (Exception e) {
+            return complete("ERROR 404");
+        }
     }
 
     CompletionStage<HttpResponse> fetch(String url) {
@@ -78,13 +84,26 @@ public class App extends AllDirectives {
                         parameter("count", notParsedCount -> {
                             int count = Integer.parseInt(notParsedCount);
                             if (count != 0) {
-                                Future<Object> randomPort = Patterns.ask(
+                                CompletionStage<HttpResponse> randomPort = Patterns.ask(
                                         storageActor,
                                         new GetRandomServer(count),
-                                        TIME_OUT_MILLS
+                                        java.time.Duration.ofMillis(TIME_OUT_MILLS)
+                                ).thenCompose(
+                                        port ->
+                                            fetchToServer(
+                                                    url,
+                                                    (int) port,
+                                                    count - 1
+                                            )
                                 );
-
+                                return completeWithFuture(randomPort);
                             } else {
+                                try {
+                                    return complete(fetch(url).toCompletableFuture().get());
+                                } catch (InterruptedException | ExecutionException e) {
+                                    e.printStackTrace();
+                                    return complete("Can't connect to url");
+                                }
 
                             }
                                 }
