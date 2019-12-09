@@ -23,6 +23,8 @@ import java.util.concurrent.CompletionStage;
 
 public class App extends AllDirectives {
 
+    private static Http http;
+
     private final static String ROUTES = "routes";
     private final static String LOCALHOST = "localhost";
     private final static int LOCALHOST_PORT = 8080;
@@ -36,7 +38,7 @@ public class App extends AllDirectives {
         ActorSystem system = ActorSystem.create(ROUTES);
         ActorRef storageActor = system.actorOf(Props.create(StorageActor.class));
 
-        final Http http = Http.get(system);
+        http = Http.get(system);
         final ActorMaterializer materializer = ActorMaterializer.create(system);
 
         App testerJS = new App();
@@ -62,6 +64,10 @@ public class App extends AllDirectives {
     }
 
 
+    CompletionStage<HttpResponse> fetch(String url) {
+        return http.singleRequest(HttpRequest.create(url));
+    }
+
     private Route route(ActorRef storageActor) {
         return get(
                 () -> parameter("url", url ->
@@ -73,7 +79,7 @@ public class App extends AllDirectives {
                                         new GetRandomServer(count),
                                         TIME_OUT_MILLS
                                 );
-                                
+
                             } else {
 
                             }
