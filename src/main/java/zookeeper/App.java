@@ -7,7 +7,6 @@ import akka.actor.Props;
 import akka.http.javadsl.ConnectHttp;
 import akka.http.javadsl.Http;
 import akka.http.javadsl.ServerBinding;
-import akka.http.javadsl.marshallers.jackson.Jackson;
 import akka.http.javadsl.model.HttpRequest;
 import akka.http.javadsl.model.HttpResponse;
 import akka.http.javadsl.server.Route;
@@ -15,7 +14,6 @@ import akka.pattern.Patterns;
 import akka.stream.ActorMaterializer;
 import akka.stream.javadsl.Flow;
 import akka.http.javadsl.server.AllDirectives;
-import scala.concurrent.Future;
 
 
 import java.io.IOException;
@@ -26,6 +24,7 @@ import java.util.concurrent.ExecutionException;
 public class App extends AllDirectives {
 
     private static Http http;
+    private static int serverPort;
 
     private final static String ROUTES = "routes";
     private final static String LOCALHOST = "127.0.0.1";
@@ -34,7 +33,7 @@ public class App extends AllDirectives {
 
     public static void main(String[] args)  {
 
-        int port = Integer.parseInt(args[0]);
+        serverPort = Integer.parseInt(args[0]);
 
         ActorSystem system = ActorSystem.create(ROUTES);
         ActorRef storageActor = system.actorOf(Props.create(StorageActor.class));
@@ -47,11 +46,11 @@ public class App extends AllDirectives {
         final Flow<HttpRequest, HttpResponse, NotUsed> routeFlow = testerJS.route(storageActor).flow(system, materializer);
         final CompletionStage<ServerBinding> binding = http.bindAndHandle(
                 routeFlow,
-                ConnectHttp.toHost(LOCALHOST, port),
+                ConnectHttp.toHost(LOCALHOST, serverPort),
                 materializer
         );
 
-        System.out.println("Server online at http://" + LOCALHOST + ":" + port);
+        System.out.println("Server online at http://" + LOCALHOST + ":" + serverPort);
 
         try {
             System.in.read();
@@ -107,7 +106,7 @@ public class App extends AllDirectives {
                                         return complete(fetch(url).toCompletableFuture().get());
                                     } catch (InterruptedException | ExecutionException e) {
                                         e.printStackTrace();
-                                        return complete("Can't connect to url");
+                                        return complete("ERROR 404");
                                     }
                                 }
                             }
