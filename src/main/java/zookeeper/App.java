@@ -21,6 +21,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 
+import static akka.actor.TypedActor.context;
+
 public class App extends AllDirectives {
 
     private static Http http;
@@ -38,7 +40,7 @@ public class App extends AllDirectives {
         ActorSystem system = ActorSystem.create(ROUTES);
         ActorRef storageActor = system.actorOf(Props.create(StorageActor.class));
 
-        http = Http.get(system);
+        http = Http.get(context().system());
         final ActorMaterializer materializer = ActorMaterializer.create(system);
 
         App testerJS = new App();
@@ -67,6 +69,7 @@ public class App extends AllDirectives {
 
     CompletionStage<HttpResponse> fetchToServer(String url, int port, int count) {
         String req = "http://localhost:" + port + "/?url=" + url + "&count=" + count;
+        System.out.println(req);
         try {
             return http.singleRequest(HttpRequest.create(req));
         } catch (Exception e) {
