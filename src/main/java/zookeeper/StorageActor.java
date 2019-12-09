@@ -2,6 +2,7 @@ package zookeeper;
 
 import akka.actor.AbstractActor;
 import akka.actor.Actor;
+import akka.actor.ActorRef;
 import akka.japi.pf.ReceiveBuilder;
 
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public class StorageActor extends AbstractActor {
                             while (serverPort == msg.getServer()) {
                                 serverPort = (int) (Math.random() * (serversList.size() - 1));
                             }
-                            getSender().tell();
+                            getSender().tell(new ServerPort(serverPort), ActorRef.noSender());
                         }
 
                 )
