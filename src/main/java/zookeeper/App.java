@@ -19,6 +19,7 @@ import scala.concurrent.Future;
 
 
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 
@@ -70,43 +71,47 @@ public class App extends AllDirectives {
         try {
             return http.singleRequest(HttpRequest.create(req));
         } catch (Exception e) {
-            return complete("ERROR 404");
+            return CompletableFuture.completedFuture(HttpResponse.create().withEntity("ERROR 404"));
         }
     }
 
     CompletionStage<HttpResponse> fetch(String url) {
-        return http.singleRequest(HttpRequest.create(url));
+        try {
+            return http.singleRequest(HttpRequest.create(url));
+        } catch (Exception e) {
+            return CompletableFuture.completedFuture(HttpResponse.create().withEntity("ERROR 404"));
+        }
     }
 
     private Route route(ActorRef storageActor) {
         return get(
                 () -> parameter("url", url ->
                         parameter("count", notParsedCount -> {
-                            int count = Integer.parseInt(notParsedCount);
-                            if (count != 0) {
-                                CompletionStage<HttpResponse> randomPort = Patterns.ask(
-                                        storageActor,
-                                        new GetRandomServer(count),
-                                        java.time.Duration.ofMillis(TIME_OUT_MILLS)
-                                ).thenCompose(
-                                        port ->
-                                            fetchToServer(
-                                                    url,
-                                                    (int) port,
-                                                    count - 1
-                                            )
-                                );
-                                return completeWithFuture(randomPort);
-                            } else {
-                                try {
-                                    return complete(fetch(url).toCompletableFuture().get());
-                                } catch (InterruptedException | ExecutionException e) {
-                                    e.printStackTrace();
-                                    return complete("Can't connect to url");
-                                }
+                                int count = Integer.parseInt(notParsedCount);
+                                if (count != 0) {
+                                    CompletionStage<HttpResponse> randomPort = Patterns.ask(
+                                            storageActor,
+                                            new GetRandomServer(count),
+                                            java.time.Duration.ofMillis(TIME_OUT_MILLS)
+                                    ).thenCompose(
+                                            port ->
+                                                fetchToServer(
+                                                        url,
+                                                        (int) port,
+                                                        count - 1
+                                                )
+                                    );
+                                    return completeWithFuture(randomPort);
+                                } else {
+                                    try {
+                                        return complete(fetch(url).toCompletableFuture().get());
+                                    } catch (InterruptedException | ExecutionException e) {
+                                        e.printStackTrace();
+                                        return complete("Can't connect to url");
+                                    }
 
-                            }
                                 }
+                            }
                         )
                 )
         );
