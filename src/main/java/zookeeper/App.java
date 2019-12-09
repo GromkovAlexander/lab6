@@ -64,6 +64,10 @@ public class App extends AllDirectives {
     }
 
 
+    CompletionStage<HttpResponse> fetchToServer(String url) {
+        return http.singleRequest();
+    }
+
     CompletionStage<HttpResponse> fetch(String url) {
         return http.singleRequest(HttpRequest.create(url));
     }
