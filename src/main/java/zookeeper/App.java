@@ -21,7 +21,7 @@ import scala.concurrent.Future;
 import java.io.IOException;
 import java.util.concurrent.CompletionStage;
 
-public class App {
+public class App extends AllDirectives {
 
     private final static String ROUTES = "routes";
     private final static String LOCALHOST = "localhost";
@@ -34,14 +34,14 @@ public class App {
 
     public static void main(String[] args)  {
         ActorSystem system = ActorSystem.create(ROUTES);
-        ActorRef mainActor = system.actorOf(Props.create(StorageActor.class));
+        ActorRef storageActor = system.actorOf(Props.create(StorageActor.class));
 
         final Http http = Http.get(system);
         final ActorMaterializer materializer = ActorMaterializer.create(system);
 
         App testerJS = new App();
 
-        final Flow<HttpRequest, HttpResponse, NotUsed> routeFlow = testerJS.route().flow(system, materializer);
+        final Flow<HttpRequest, HttpResponse, NotUsed> routeFlow = testerJS.route(storageActor).flow(system, materializer);
         final CompletionStage<ServerBinding> binding = http.bindAndHandle(
                 routeFlow,
                 ConnectHttp.toHost(LOCALHOST, LOCALHOST_PORT),
@@ -62,9 +62,19 @@ public class App {
     }
 
 
-    private Route route() {
+    private Route route(ActorRef storageActor) {
         return get(
-                () -> parametr()
+                () -> parameter("url", url ->
+                        parameter("count", notParsedCount -> {
+                            int count = Integer.parseInt(notParsedCount);
+                            if (count != 0) {
+                                
+                            } else {
+
+                            }
+                                }
+                        )
+                )
         );
     }
 
