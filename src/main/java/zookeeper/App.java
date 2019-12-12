@@ -42,8 +42,6 @@ public class App extends AllDirectives {
 
     public static void main(String[] args)  {
 
-//        serverPort = Integer.parseInt(args[0]);
-
         Scanner sc = new Scanner(System.in);
         serverPort = Integer.parseInt(sc.nextLine());
 
@@ -75,6 +73,14 @@ public class App extends AllDirectives {
                 .thenCompose(ServerBinding::unbind)
                 .thenAccept(unbound -> system.terminate());
 
+    }
+
+    public static class ZooWatcher implements Watcher {
+
+        @Override
+        public void process(WatchedEvent watchedEvent) {
+
+        }
     }
 
     private static void createZoo(ActorRef storageActor) {
