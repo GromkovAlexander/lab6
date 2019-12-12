@@ -14,12 +14,13 @@ import akka.pattern.Patterns;
 import akka.stream.ActorMaterializer;
 import akka.stream.javadsl.Flow;
 import akka.http.javadsl.server.AllDirectives;
-import org.apache.zookeeper.WatchedEvent;
-import org.apache.zookeeper.Watcher;
-import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.*;
 
 
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
@@ -33,6 +34,10 @@ public class App extends AllDirectives {
 
     private final static String ROUTES = "routes";
     private final static String LOCALHOST = "127.0.0.1";
+    private final static String ZOO_LOCALHOST = "127.0.0.1:2181";
+
+    private final static String HOME_DIR = "/zoo";
+    private final static String CHILD_DIR = "/zoo/";
 
     private final static int TIME_OUT_MILLS = 10000;
 
@@ -70,16 +75,59 @@ public class App extends AllDirectives {
     }
 
     private ZooKeeper initZoo() {
-        ZooKeeper zoo = new ZooKeeper(
-                "127.0.0.1:2181",
-                5000,
-                new Watcher() {
-                    @Override
-                    public void process(WatchedEvent watchedEvent) {
-
+        ZooKeeper zoo = null;
+        try {
+            zoo = new ZooKeeper(
+                    ZOO_LOCALHOST,
+                    TIME_OUT_MILLS,
+                    new Watcher() {
+                        @Override
+                        public void process(WatchedEvent watchedEvent) {}
                     }
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            zoo.create(HOME_DIR,
+                    "parent".getBytes(),
+                    ZooDefs.Ids.OPEN_ACL_UNSAFE,
+                    CreateMode.PERSISTENT
+            );
+
+            zoo.create(CHILD_DIR + serverPort,
+                    Integer.toString(serverPort).getBytes(),
+                    ZooDefs.Ids.OPEN_ACL_UNSAFE,
+                    CreateMode.EPHEMERAL
+            );
+        } catch (KeeperException | InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            ZooKeeper finalZoo = zoo;
+            zoo.getChildren(HOME_DIR, new Watcher() {
+                @Override
+                public void process(WatchedEvent watchedEvent) {
+                    List<String> ports = new ArrayList<>();
+
+                    try {
+                        ports = finalZoo.getChildren(HOME_DIR, this);
+                    } catch (KeeperException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+
+
                 }
-        );
+            });
+        } catch (KeeperException | InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return zoo;
+
     }
 
 
