@@ -26,8 +26,11 @@ public class StorageActor extends AbstractActor {
                             Random rand = new Random();
 
                             int serverPortIndex = rand.nextInt(serversList.size());
-                            while (msg.getServer() == serversList.get(serverPortIndex)) {
+                            System.out.println(msg.getServer());
+                            System.out.println(serversList.get(serverPortIndex));
+                            while (msg.getServer().equals(serversList.get(serverPortIndex))) {
                                 serverPortIndex = rand.nextInt(serversList.size());
+                                System.out.println(serversList.get(serverPortIndex));
                             }
                             getSender().tell(serversList.get(serverPortIndex), ActorRef.noSender());
                         }
