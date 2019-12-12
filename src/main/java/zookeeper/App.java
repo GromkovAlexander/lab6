@@ -14,22 +14,16 @@ import akka.pattern.Patterns;
 import akka.stream.ActorMaterializer;
 import akka.stream.javadsl.Flow;
 import akka.http.javadsl.server.AllDirectives;
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.zookeeper.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 
-import static akka.actor.TypedActor.context;
 
 public class App extends AllDirectives {
 
@@ -43,14 +37,11 @@ public class App extends AllDirectives {
     private final static String ZOO_LOCALHOST = "127.0.0.1:2181";
 
     private final static String HOME_DIR = "/zoo";
-    private final static String CHILD_DIR = "/zoo/";
+    private final static String CHILD_DIR = HOME_DIR + "/";
 
     private final static int TIME_OUT_MILLS = 10000;
 
     public static void main(String[] args)  {
-
-//        String log4jConfPath = "/home/gromkon/to/log4j.properties";
-//        PropertyConfigurator.configure(log4jConfPath);
 
         Scanner sc = new Scanner(System.in);
         serverPort = Integer.parseInt(sc.nextLine());
@@ -137,6 +128,7 @@ public class App extends AllDirectives {
             );
         } catch (KeeperException e) {
             try {
+                System.out.println("Создаю дочернюю директорию");
                 zoo.create(HOME_DIR,
                         "parent".getBytes(),
                         ZooDefs.Ids.OPEN_ACL_UNSAFE,
