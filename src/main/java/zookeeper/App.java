@@ -49,12 +49,11 @@ public class App extends AllDirectives {
 
         ActorSystem system = ActorSystem.create(ROUTES);
         storageActor = system.actorOf(Props.create(StorageActor.class));
-
+        createZoo();
         http = Http.get(system);
         final ActorMaterializer materializer = ActorMaterializer.create(system);
 
         App testerJS = new App();
-        createZoo();
 
         final Flow<HttpRequest, HttpResponse, NotUsed> routeFlow = testerJS.route(storageActor).flow(system, materializer);
         final CompletionStage<ServerBinding> binding = http.bindAndHandle(
