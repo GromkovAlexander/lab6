@@ -39,6 +39,7 @@ public class App extends AllDirectives {
     private final static String HOME_DIR = "/zoo";
     private final static String CHILD_DIR = HOME_DIR + "/";
 
+    private final static String ER_404 = "ERROR 404";
     private final static int TIME_OUT_MILLS = 10000;
 
     public static void main(String[] args)  {
@@ -189,7 +190,7 @@ public class App extends AllDirectives {
         try {
             return http.singleRequest(HttpRequest.create(req));
         } catch (Exception e) {
-            return CompletableFuture.completedFuture(HttpResponse.create().withEntity("ERROR 404"));
+            return CompletableFuture.completedFuture(HttpResponse.create().withEntity(ER_404));
         }
     }
 
@@ -198,7 +199,7 @@ public class App extends AllDirectives {
             System.out.println(url);
             return http.singleRequest(HttpRequest.create(url));
         } catch (Exception e) {
-            return CompletableFuture.completedFuture(HttpResponse.create().withEntity("ERROR 404"));
+            return CompletableFuture.completedFuture(HttpResponse.create().withEntity(ER_404));
         }
     }
 
@@ -226,7 +227,7 @@ public class App extends AllDirectives {
                                         return complete(fetch(url).toCompletableFuture().get());
                                     } catch (InterruptedException | ExecutionException e) {
                                         e.printStackTrace();
-                                        return complete("ERROR 404");
+                                        return complete(ER_404);
                                     }
                                 }
                             }
