@@ -36,7 +36,7 @@ public class App extends AllDirectives {
     private final static String LOCALHOST = "127.0.0.1";
     private final static String ZOO_LOCALHOST = "127.0.0.1:2181";
 
-    private final static String HOME_DIR = "/zooo";
+    private final static String HOME_DIR = "/zooop";
     private final static String CHILD_DIR = HOME_DIR + "/";
 
     private final static int TIME_OUT_MILLS = 10000;
@@ -83,8 +83,25 @@ public class App extends AllDirectives {
 
                 try {
                     ports = zoo.getChildren(HOME_DIR, this);
-                } catch (KeeperException | InterruptedException e) {
+                } catch (KeeperException e) {
+
+                    System.out.println("Создаю дочернюю директорию");
+                    try {
+                        zoo.create(HOME_DIR,
+                                "parent".getBytes(),
+                                ZooDefs.Ids.OPEN_ACL_UNSAFE,
+                                CreateMode.PERSISTENT
+                        );
+
+                        ports = zoo.getChildren(HOME_DIR, this);
+
+                    } catch (KeeperException | InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+
+                } catch (InterruptedException e) {
                     e.printStackTrace();
+
                 }
 
                 List<String> portsData = new ArrayList<>();
@@ -127,24 +144,26 @@ public class App extends AllDirectives {
                     CreateMode.EPHEMERAL
             );
         } catch (KeeperException e) {
-            try {
-                System.out.println("Создаю дочернюю директорию");
-                zoo.create(HOME_DIR,
-                        "parent".getBytes(),
-                        ZooDefs.Ids.OPEN_ACL_UNSAFE,
-                        CreateMode.PERSISTENT
-                );
+//            try {
+//                System.out.println("Создаю дочернюю директорию");
+//                zoo.create(HOME_DIR,
+//                        "parent".getBytes(),
+//                        ZooDefs.Ids.OPEN_ACL_UNSAFE,
+//                        CreateMode.PERSISTENT
+//                );
+//
+//                zoo.create(CHILD_DIR + serverPort,
+//                        Integer.toString(serverPort).getBytes(),
+//                        ZooDefs.Ids.OPEN_ACL_UNSAFE,
+//                        CreateMode.EPHEMERAL
+//                );
+//            } catch (KeeperException | InterruptedException ex) {
+//                ex.printStackTrace();
+//            }
+            e.printStackTrace();
 
-                zoo.create(CHILD_DIR + serverPort,
-                        Integer.toString(serverPort).getBytes(),
-                        ZooDefs.Ids.OPEN_ACL_UNSAFE,
-                        CreateMode.EPHEMERAL
-                );
-            } catch (KeeperException | InterruptedException ex) {
-                ex.printStackTrace();
-            }
         } catch (InterruptedException e) {
-                        e.printStackTrace();
+            e.printStackTrace();
         }
 
         try {
