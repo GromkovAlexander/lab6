@@ -35,6 +35,8 @@ public class App extends AllDirectives {
 
     public static void main(String[] args)  {
 
+        System.out.println("Check git");
+
         serverPort = Integer.parseInt(args[0]);
 
         ActorSystem system = ActorSystem.create(ROUTES);
