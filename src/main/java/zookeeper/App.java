@@ -185,7 +185,7 @@ public class App extends AllDirectives {
                                 if (count != 0) {
                                     CompletionStage<HttpResponse> randomPort = Patterns.ask(
                                             storageActor,
-                                            new GetRandomServer(count),
+                                            new GetRandomServer(serverPort),
                                             java.time.Duration.ofMillis(TIME_OUT_MILLS)
                                     ).thenCompose(
                                             port ->
