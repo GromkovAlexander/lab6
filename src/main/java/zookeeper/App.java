@@ -52,12 +52,6 @@ public class App extends AllDirectives {
         String log4jConfPath = "/home/gromkon/to/log4j.properties";
         PropertyConfigurator.configure(log4jConfPath);
 
-//        List<Logger> loggers = Collections.<Logger>list(LogManager.getCurrentLoggers());
-//        loggers.add(LogManager.getRootLogger());
-//        for ( Logger logger : loggers ) {
-//            logger.setLevel(Level.OFF);
-//        }
-
         Scanner sc = new Scanner(System.in);
         serverPort = Integer.parseInt(sc.nextLine());
 
