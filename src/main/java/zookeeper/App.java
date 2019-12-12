@@ -14,6 +14,9 @@ import akka.pattern.Patterns;
 import akka.stream.ActorMaterializer;
 import akka.stream.javadsl.Flow;
 import akka.http.javadsl.server.AllDirectives;
+import org.apache.zookeeper.WatchedEvent;
+import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.ZooKeeper;
 
 
 import java.io.IOException;
@@ -64,6 +67,19 @@ public class App extends AllDirectives {
                 .thenCompose(ServerBinding::unbind)
                 .thenAccept(unbound -> system.terminate());
 
+    }
+
+    private ZooKeeper initZoo() {
+        ZooKeeper zoo = new ZooKeeper(
+                "127.0.0.1:2181",
+                5000,
+                new Watcher() {
+                    @Override
+                    public void process(WatchedEvent watchedEvent) {
+
+                    }
+                }
+        );
     }
 
 
