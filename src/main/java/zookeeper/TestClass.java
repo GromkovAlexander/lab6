@@ -18,9 +18,9 @@ public class TestClass {
 
             Random rand = new Random();
 
-            int serverPort = (int) Math.random() * (serversList.size() - 1);
+            int serverPort = rand.nextInt();
             while (msg == serversList.get(serverPort)) {
-                serverPort = (int) Math.random() * (serversList.size() - 1);
+                serverPort = rand.nextInt();
             }
 
             System.out.println(serverPort);
