@@ -89,19 +89,30 @@ public class App extends AllDirectives {
         }
 
         try {
-            zoo.create(HOME_DIR,
-                    "parent".getBytes(),
-                    ZooDefs.Ids.OPEN_ACL_UNSAFE,
-                    CreateMode.PERSISTENT
-            );
-
             zoo.create(CHILD_DIR + serverPort,
                     Integer.toString(serverPort).getBytes(),
                     ZooDefs.Ids.OPEN_ACL_UNSAFE,
                     CreateMode.EPHEMERAL
             );
         } catch (KeeperException | InterruptedException e) {
-            e.printStackTrace();
+            try {
+                zoo.create(HOME_DIR,
+                        "parent".getBytes(),
+                        ZooDefs.Ids.OPEN_ACL_UNSAFE,
+                        CreateMode.PERSISTENT
+                );
+
+                zoo.create(CHILD_DIR + serverPort,
+                        Integer.toString(serverPort).getBytes(),
+                        ZooDefs.Ids.OPEN_ACL_UNSAFE,
+                        CreateMode.EPHEMERAL
+                );
+            } catch (KeeperException | InterruptedException ex) {
+                ex.printStackTrace();
+            }
+
+
+//            e.printStackTrace();
         }
 
         try {
