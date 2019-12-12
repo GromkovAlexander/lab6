@@ -30,6 +30,8 @@ public class App extends AllDirectives {
 
     private static Http http;
     private static int serverPort;
+    private static ActorRef storageActor;
+    private static ZooKeeper zoo;
 
     private final static String ROUTES = "routes";
     private final static String LOCALHOST = "127.0.0.1";
@@ -46,13 +48,13 @@ public class App extends AllDirectives {
         serverPort = Integer.parseInt(sc.nextLine());
 
         ActorSystem system = ActorSystem.create(ROUTES);
-        ActorRef storageActor = system.actorOf(Props.create(StorageActor.class));
+        storageActor = system.actorOf(Props.create(StorageActor.class));
 
         http = Http.get(system);
         final ActorMaterializer materializer = ActorMaterializer.create(system);
 
         App testerJS = new App();
-        createZoo(storageActor);
+        createZoo();
 
         final Flow<HttpRequest, HttpResponse, NotUsed> routeFlow = testerJS.route(storageActor).flow(system, materializer);
         final CompletionStage<ServerBinding> binding = http.bindAndHandle(
@@ -79,12 +81,37 @@ public class App extends AllDirectives {
 
         @Override
         public void process(WatchedEvent watchedEvent) {
+                List<String> ports = new ArrayList<>();
+
+                try {
+                    ports = zoo.getChildren(HOME_DIR, this);
+                } catch (KeeperException | InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                List<String> portsData = new ArrayList<>();
+
+                for (String port : ports) {
+                    byte[] data = new byte[0];
+                    try {
+                        data = zoo.getData(CHILD_DIR + port, false, null);
+                    } catch (KeeperException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    portsData.add(new String(data));
+                }
+
+                ArrayList<Integer> portsDataInt = new ArrayList<>();
+                for (String port : portsData) {
+                    portsDataInt.add(Integer.parseInt(port));
+                }
+
+                storageActor.tell(new ServesList(portsDataInt), ActorRef.noSender());
 
         }
     }
 
-    private static void createZoo(ActorRef storageActor) {
-        ZooKeeper zoo = null;
+    private static void createZoo() {
         try {
             zoo = new ZooKeeper(
                     ZOO_LOCALHOST,
@@ -104,7 +131,7 @@ public class App extends AllDirectives {
                     ZooDefs.Ids.OPEN_ACL_UNSAFE,
                     CreateMode.EPHEMERAL
             );
-        } catch (KeeperException | InterruptedException e) {
+        } catch (KeeperException e) {
             try {
                 zoo.create(HOME_DIR,
                         "parent".getBytes(),
@@ -120,44 +147,15 @@ public class App extends AllDirectives {
             } catch (KeeperException | InterruptedException ex) {
                 ex.printStackTrace();
             }
-
-
-//            e.printStackTrace();
+        } catch (InterruptedException e) {
+                        e.printStackTrace();
         }
 
         try {
-            ZooKeeper finalZoo = zoo;
-            zoo.getChildren(HOME_DIR, new Watcher() {
-                @Override
-                public void process(WatchedEvent watchedEvent) {
-                    List<String> ports = new ArrayList<>();
-
-                    try {
-                        ports = finalZoo.getChildren(HOME_DIR, this);
-                    } catch (KeeperException | InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                    List<String> portsData = new ArrayList<>();
-
-                    for (String port : ports) {
-                        byte[] data = new byte[0];
-                        try {
-                            data = finalZoo.getData(CHILD_DIR + port, false, null);
-                        } catch (KeeperException | InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        portsData.add(new String(data));
-                    }
-
-                    ArrayList<Integer> portsDataInt = new ArrayList<>();
-                    for (String port : portsData) {
-                        portsDataInt.add(Integer.parseInt(port));
-                    }
-
-                    storageActor.tell(new ServesList(portsDataInt), ActorRef.noSender());
-                }
-            });
+            zoo.getChildren(
+                    HOME_DIR,
+                    new ZooWatcher()
+            );
         } catch (KeeperException | InterruptedException e) {
             e.printStackTrace();
         }
