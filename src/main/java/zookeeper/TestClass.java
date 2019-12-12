@@ -13,11 +13,15 @@ public class TestClass {
 
         String msg = "5050";
 
-        int serverPort = (int) (Math.random() * (serversList.size() - 1));
-        while (msg == serversList.get(serverPort)) {
-            serverPort = (int) (Math.random() * (serversList.size() - 1));
+        for (int i = 0; i < 10; i++) {
+            int serverPort = (int) (Math.random() * (serversList.size() - 1));
+            while (msg == serversList.get(serverPort)) {
+                serverPort = (int) (Math.random() * (serversList.size() - 1));
+            }
+
+            System.out.println(serverPort);
         }
 
-        System.out.println(serverPort);
+
     }
 }
