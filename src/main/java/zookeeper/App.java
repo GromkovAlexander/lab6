@@ -115,10 +115,7 @@ public class App extends AllDirectives {
             zoo = new ZooKeeper(
                     ZOO_LOCALHOST,
                     TIME_OUT_MILLS,
-                    new Watcher() {
-                        @Override
-                        public void process(WatchedEvent watchedEvent) {}
-                    }
+                    new ZooWatcher()
             );
         } catch (IOException e) {
             e.printStackTrace();
