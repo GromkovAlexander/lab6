@@ -14,11 +14,15 @@ import akka.pattern.Patterns;
 import akka.stream.ActorMaterializer;
 import akka.stream.javadsl.Flow;
 import akka.http.javadsl.server.AllDirectives;
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.zookeeper.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
@@ -47,6 +51,12 @@ public class App extends AllDirectives {
 
         String log4jConfPath = "/home/gromkon/to/log4j.properties";
         PropertyConfigurator.configure(log4jConfPath);
+
+        List<Logger> loggers = Collections.<Logger>list(LogManager.getCurrentLoggers());
+        loggers.add(LogManager.getRootLogger());
+        for ( Logger logger : loggers ) {
+            logger.setLevel(Level.OFF);
+        }
 
         Scanner sc = new Scanner(System.in);
         serverPort = Integer.parseInt(sc.nextLine());
