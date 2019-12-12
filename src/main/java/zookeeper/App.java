@@ -49,8 +49,8 @@ public class App extends AllDirectives {
 
     public static void main(String[] args)  {
 
-        String log4jConfPath = "/home/gromkon/to/log4j.properties";
-        PropertyConfigurator.configure(log4jConfPath);
+//        String log4jConfPath = "/home/gromkon/to/log4j.properties";
+//        PropertyConfigurator.configure(log4jConfPath);
 
         Scanner sc = new Scanner(System.in);
         serverPort = Integer.parseInt(sc.nextLine());
