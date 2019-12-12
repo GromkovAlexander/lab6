@@ -16,9 +16,7 @@ import akka.stream.javadsl.Flow;
 import akka.http.javadsl.server.AllDirectives;
 import org.apache.zookeeper.*;
 
-
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -52,6 +50,7 @@ public class App extends AllDirectives {
         final ActorMaterializer materializer = ActorMaterializer.create(system);
 
         App testerJS = new App();
+        createZoo(storageActor);
 
         final Flow<HttpRequest, HttpResponse, NotUsed> routeFlow = testerJS.route(storageActor).flow(system, materializer);
         final CompletionStage<ServerBinding> binding = http.bindAndHandle(
@@ -74,7 +73,7 @@ public class App extends AllDirectives {
 
     }
 
-    private ZooKeeper initZoo() {
+    private static void createZoo(ActorRef storageActor) {
         ZooKeeper zoo = null;
         try {
             zoo = new ZooKeeper(
@@ -118,15 +117,29 @@ public class App extends AllDirectives {
                         e.printStackTrace();
                     }
 
+                    List<String> portsData = new ArrayList<>();
 
+                    for (String port : ports) {
+                        byte[] data = new byte[0];
+                        try {
+                            data = finalZoo.getData(CHILD_DIR + port, false, null);
+                        } catch (KeeperException | InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        portsData.add(new String(data));
+                    }
 
+                    ArrayList<Integer> portsDataInt = new ArrayList<>();
+                    for (String port : portsData) {
+                        portsDataInt.add(Integer.parseInt(port));
+                    }
+
+                    storageActor.tell(new ServesList(portsDataInt), ActorRef.noSender());
                 }
             });
         } catch (KeeperException | InterruptedException e) {
             e.printStackTrace();
         }
-
-        return zoo;
 
     }
 
