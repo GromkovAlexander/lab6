@@ -6,6 +6,7 @@ import akka.actor.ActorRef;
 import akka.japi.pf.ReceiveBuilder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 public class StorageActor extends AbstractActor {
@@ -24,6 +25,12 @@ public class StorageActor extends AbstractActor {
                         GetRandomServer.class, msg -> {
 
                             Random rand = new Random();
+
+                            for (int i = 0; i < serversList.size(); i++) {
+                                System.out.println(serversList.get(i));
+                            }
+
+                            System.out.println();
 
                             int serverPortIndex = rand.nextInt(serversList.size());
                             System.out.println(msg.getServer());
