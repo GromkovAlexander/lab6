@@ -46,7 +46,7 @@ public class App extends AllDirectives {
         ActorSystem system = ActorSystem.create(ROUTES);
         ActorRef storageActor = system.actorOf(Props.create(StorageActor.class));
 
-        http = Http.get(context().system());
+        http = Http.get(system);
         final ActorMaterializer materializer = ActorMaterializer.create(system);
 
         App testerJS = new App();
