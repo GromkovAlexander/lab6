@@ -14,6 +14,7 @@ import akka.pattern.Patterns;
 import akka.stream.ActorMaterializer;
 import akka.stream.javadsl.Flow;
 import akka.http.javadsl.server.AllDirectives;
+import org.apache.log4j.PropertyConfigurator;
 import org.apache.zookeeper.*;
 
 import java.io.IOException;
@@ -43,6 +44,9 @@ public class App extends AllDirectives {
     private final static int TIME_OUT_MILLS = 10000;
 
     public static void main(String[] args)  {
+
+        String log4jConfPath = "/home/gromkon/to/log4j.properties";
+        PropertyConfigurator.configure(log4jConfPath);
 
         Scanner sc = new Scanner(System.in);
         serverPort = Integer.parseInt(sc.nextLine());
