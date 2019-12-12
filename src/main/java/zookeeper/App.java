@@ -36,7 +36,7 @@ public class App extends AllDirectives {
     private final static String LOCALHOST = "127.0.0.1";
     private final static String ZOO_LOCALHOST = "127.0.0.1:2181";
 
-    private final static String HOME_DIR = "/zoods";
+    private final static String HOME_DIR = "/zoo";
     private final static String CHILD_DIR = HOME_DIR + "/";
 
     private final static int TIME_OUT_MILLS = 10000;
