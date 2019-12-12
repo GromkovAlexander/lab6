@@ -175,6 +175,7 @@ public class App extends AllDirectives {
 
     CompletionStage<HttpResponse> fetch(String url) {
         try {
+            System.out.println(url);
             return http.singleRequest(HttpRequest.create(url));
         } catch (Exception e) {
             return CompletableFuture.completedFuture(HttpResponse.create().withEntity("ERROR 404"));
