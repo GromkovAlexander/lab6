@@ -19,6 +19,7 @@ import org.apache.zookeeper.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
@@ -41,7 +42,10 @@ public class App extends AllDirectives {
 
     public static void main(String[] args)  {
 
-        serverPort = Integer.parseInt(args[0]);
+//        serverPort = Integer.parseInt(args[0]);
+
+        Scanner sc = new Scanner(System.in);
+        serverPort = Integer.parseInt(sc.nextLine());
 
         ActorSystem system = ActorSystem.create(ROUTES);
         ActorRef storageActor = system.actorOf(Props.create(StorageActor.class));
